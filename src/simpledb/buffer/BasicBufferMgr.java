@@ -12,6 +12,7 @@ class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;
    private HashMap<Block,Buffer> bufferPoolMap;	//blk-buffer hashmap
+   private HashMap<Buffer,Block> bufferValMap;
    
    /**
     * Creates a buffer manager having the specified number 
@@ -29,7 +30,8 @@ class BasicBufferMgr {
    BasicBufferMgr(int numbuffs) {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
-      bufferPoolMap=new HashMap<Block,Buffer>();	//blk-buffer map initialized
+      bufferValMap =new HashMap<Buffer,Block>();//blk-buffer map initialized
+      bufferPoolMap=new HashMap<Block,Buffer>();//buffer-blk map initialized
       for (int i=0; i<numbuffs; i++)
          bufferpool[i] = new Buffer();
    }
@@ -59,7 +61,11 @@ class BasicBufferMgr {
          buff = chooseUnpinnedBuffer();
          if (buff == null)
             return null;
-         bufferPoolMap.remove(key)
+         //if buffer is already assigned a block then it
+         //is replaced with new value.
+         if(bufferValMap.get(buff)!=null)
+        	 bufferPoolMap.remove(bufferValMap.get(buff));
+         bufferValMap.put(buff,blk);
          bufferPoolMap.put(blk,buff);
          buff.assignToBlock(blk);
       }
@@ -109,8 +115,8 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      Buffer buff=bufferPoolMap.get(blk);	//task 2.1
-      return buff;
+      return bufferPoolMap.get(blk);	//task 2.1
+    
 	  /**
       *	for (Buffer buff : bufferpool) {
       *   	Block b = buff.block();
@@ -120,6 +126,13 @@ class BasicBufferMgr {
       return null;
       */
    }
+   boolean containsMapping(Block blk) {
+		return bufferPoolMap.containsKey(blk);
+	}
+		   
+   Buffer getMapping(Block blk) {
+		return bufferPoolMap.get(blk);
+	}
    
    private Buffer chooseUnpinnedBuffer() {
       for (Buffer buff : bufferpool)
