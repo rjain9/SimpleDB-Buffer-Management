@@ -1,7 +1,8 @@
 package simpledb.buffer;
 
+import java.util.HashMap;
 import simpledb.file.*;
-
+ 
 /**
  * Manages the pinning and unpinning of buffers to blocks.
  * @author Edward Sciore
@@ -10,6 +11,7 @@ import simpledb.file.*;
 class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;
+   private HashMap<Block,Buffer> blkBuffMap;	//blk-buffer hashmap
    
    /**
     * Creates a buffer manager having the specified number 
@@ -27,6 +29,7 @@ class BasicBufferMgr {
    BasicBufferMgr(int numbuffs) {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
+      blkBuffMap=new HashMap<Block,Buffer>();	//blk-buffer map initialized
       for (int i=0; i<numbuffs; i++)
          bufferpool[i] = new Buffer();
    }
@@ -56,6 +59,7 @@ class BasicBufferMgr {
          buff = chooseUnpinnedBuffer();
          if (buff == null)
             return null;
+         blkBuffMap.put(blk,buff);
          buff.assignToBlock(blk);
       }
       if (!buff.isPinned())
@@ -77,8 +81,10 @@ class BasicBufferMgr {
       Buffer buff = chooseUnpinnedBuffer();
       if (buff == null)
          return null;
+      
       buff.assignToNew(filename, fmtr);
       numAvailable--;
+      blkBuffMap.put(buff.block(), buff);
       buff.pin();
       return buff;
    }
@@ -102,11 +108,15 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      for (Buffer buff : bufferpool) {
-         Block b = buff.block();
-         if (b != null && b.equals(blk))
-            return buff;
-      }
+      Buffer buff=blkBuffMap.get(blk);
+      
+	  /**
+      *	for (Buffer buff : bufferpool) {
+      *   	Block b = buff.block();
+      *   	if (b != null && b.equals(blk))
+      *      	return buff;
+      *	}
+      */
       return null;
    }
    
