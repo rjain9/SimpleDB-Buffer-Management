@@ -10,7 +10,7 @@ import simpledb.file.*;
  *
  */
 class BasicBufferMgr {
-<<<<<<< HEAD
+	
 	private Buffer[] bufferpool;
 	private int numAvailable;
 	private HashMap<Block, Buffer> bufferPoolMap; // blk-buffer hashmap
@@ -130,7 +130,7 @@ class BasicBufferMgr {
 
 
 	/*   private Buffer chooseUnpinnedBuffer() {
-=======
+
    private Buffer[] bufferpool;
    private int numAvailable;
    private HashMap<Block,Buffer> bufferPoolMap;	//blk-buffer hashmap
@@ -256,8 +256,7 @@ class BasicBufferMgr {
 		return bufferPoolMap.get(blk);
 	}
    
-   private Buffer chooseUnpinnedBuffer() {
->>>>>>> 95596057b121406f5451fa5fe24c359f434047f9
+/*   private Buffer chooseUnpinnedBuffer() {
       for (Buffer buff : bufferpool)
          if (!buff.isPinned())
          return buff;
