@@ -131,10 +131,25 @@ class BasicBufferMgr {
 		return bufferPoolMap.get(blk);
 	}
    
-   private Buffer chooseUnpinnedBuffer() {
-      for (Buffer buff : bufferpool)
-         if (!buff.isPinned())
-         return buff;
-      return null;
-   }
+   /*   private Buffer chooseUnpinnedBuffer() {
+   for (Buffer buff : bufferpool)
+      if (!buff.isPinned())
+      return buff;
+   return null;
+}*/
+
+	private Buffer chooseUnpinnedBuffer() {
+		int max= -2;
+		Buffer maxbuff = null;
+		for (Buffer buff : bufferpool) {
+			if (!buff.isPinned()) {
+				int lsn = buff.getLogSequenceNumber();
+				if (max<lsn){
+					max=lsn;
+					maxbuff=buff;
+				}
+			}
+		}
+		return maxbuff;
+	}
 }
