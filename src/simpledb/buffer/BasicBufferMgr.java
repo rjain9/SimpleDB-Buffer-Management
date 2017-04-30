@@ -12,7 +12,7 @@ class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;
    private HashMap<Block,Buffer> bufferPoolMap;	//blk-buffer hashmap
-   private HashMap<Buffer,Block> bufferValMap;
+
    
    /**
     * Creates a buffer manager having the specified number 
@@ -30,7 +30,6 @@ class BasicBufferMgr {
    BasicBufferMgr(int numbuffs) {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
-      bufferValMap =new HashMap<Buffer,Block>();//blk-buffer map initialized
       bufferPoolMap=new HashMap<Block,Buffer>();//buffer-blk map initialized
       for (int i=0; i<numbuffs; i++)
          bufferpool[i] = new Buffer();
@@ -63,9 +62,8 @@ class BasicBufferMgr {
             return null;
          //if buffer is already assigned a block then it
          //is replaced with new value.
-         if(bufferValMap.get(buff)!=null)
-        	 bufferPoolMap.remove(bufferValMap.get(buff));
-         bufferValMap.put(buff,blk);
+         if(buff.block()!=null)
+        	 bufferPoolMap.remove(buff.block());
          bufferPoolMap.put(blk,buff);
          buff.assignToBlock(blk);
       }
@@ -88,7 +86,6 @@ class BasicBufferMgr {
       Buffer buff = chooseUnpinnedBuffer();
       if (buff == null)
          return null;
-      
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       bufferPoolMap.put(buff.block(), buff);
