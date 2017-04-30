@@ -8,10 +8,10 @@ import simpledb.file.*;
  * @author Edward Sciore
  *
  */
-class BasicBufferMgr {
+public class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;
-   private HashMap<Block,Buffer> bufferPoolMap;	//blk-buffer hashmap
+   public HashMap<Block,Buffer> bufferPoolMap;	//blk-buffer hashmap
 
    
    /**
@@ -58,8 +58,10 @@ class BasicBufferMgr {
       Buffer buff = findExistingBuffer(blk);
       if (buff == null) {
          buff = chooseUnpinnedBuffer();
-         if (buff == null)
-            return null;
+         if (buff == null){
+            System.out.println("No buffer empty. can't pin!");
+        	 return null;
+         }
          //if buffer is already assigned a block then it
          //is replaced with new value.
          if(buff.block()!=null)
@@ -70,6 +72,7 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable--;
       buff.pin();
+      //printBufferMap();
       return buff;
    }
    
@@ -99,6 +102,7 @@ class BasicBufferMgr {
     */
    synchronized void unpin(Buffer buff) {
       buff.unpin();
+      System.out.println(buff.getLogSequenceNumber()+" unpinned");
       if (!buff.isPinned())
          numAvailable++;
    }
@@ -151,5 +155,20 @@ class BasicBufferMgr {
 			}
 		}
 		return maxbuff;
+	}
+	public void printBufferMap(){
+		int i=0;
+		for(Block blk:bufferPoolMap.keySet()){
+			System.out.println("block:"+blk+"\tbuffer:"+bufferPoolMap.get(blk).getLogSequenceNumber());
+		}
+	}
+	public void getStatistics(){
+		System.out.println("Buffer Statistics:");
+		int i=0;
+		for(Buffer buff : bufferpool){
+			System.out.println("Buffer:"+i+"\treadCount:"+buff.getNumberOfReads()+
+					"\twriteCount:"+buff.getNumberOfWrites()+"\tlogSequenceNumber:"+buff.getLogSequenceNumber());
+			i++;
+		}
 	}
 }

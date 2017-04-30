@@ -20,7 +20,7 @@ import simpledb.file.*;
  */
 public class BufferMgr {
    private static final long MAX_TIME = 10000; // 10 seconds
-   private BasicBufferMgr bufferMgr;
+   public BasicBufferMgr bufferMgr;
    
    /**
     * Creates a new buffer manager having the specified 
@@ -120,5 +120,9 @@ public class BufferMgr {
    
    private boolean waitingTooLong(long starttime) {
       return System.currentTimeMillis() - starttime > MAX_TIME;
+   }
+   
+   public BasicBufferMgr getBasicBufferMgr(){
+	   return bufferMgr;
    }
 }
