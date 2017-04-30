@@ -67,6 +67,7 @@ public class BasicBufferMgr {
          if(buff.block()!=null)
         	 bufferPoolMap.remove(buff.block());
          bufferPoolMap.put(blk,buff);
+         buff.setAssigned();
          buff.assignToBlock(blk);
       }
       if (!buff.isPinned())
@@ -90,6 +91,7 @@ public class BasicBufferMgr {
       if (buff == null)
          return null;
       buff.assignToNew(filename, fmtr);
+      buff.setAssigned();
       numAvailable--;
       bufferPoolMap.put(buff.block(), buff);
       buff.pin();
@@ -127,10 +129,22 @@ public class BasicBufferMgr {
       return null;
       */
    }
+   /**  
+   * Determines whether the map has a mapping from  
+   * the block to some buffer.  
+   * @paramblk the block to use as a key  
+   * @return true if there is a mapping; false otherwise  
+   */  
    boolean containsMapping(Block blk) {
 		return bufferPoolMap.containsKey(blk);
 	}
-		   
+		
+   /**  
+   * Returns the buffer that the map maps the specified block to.  
+   * @paramblk the block to use as a key  
+   * @return the buffer mapped to if there is a mapping; null otherwise  
+   */  
+
    Buffer getMapping(Block blk) {
 		return bufferPoolMap.get(blk);
 	}
@@ -146,6 +160,9 @@ public class BasicBufferMgr {
 		int max= -2;
 		Buffer maxbuff = null;
 		for (Buffer buff : bufferpool) {
+			if(!buff.isAssigned()){
+				return buff;
+			}
 			if (!buff.isPinned()) {
 				int lsn = buff.getLogSequenceNumber();
 				if (max<lsn){
@@ -157,7 +174,6 @@ public class BasicBufferMgr {
 		return maxbuff;
 	}
 	public void printBufferMap(){
-		int i=0;
 		for(Block blk:bufferPoolMap.keySet()){
 			System.out.println("block:"+blk+"\tbuffer:"+bufferPoolMap.get(blk).getLogSequenceNumber());
 		}
@@ -171,4 +187,5 @@ public class BasicBufferMgr {
 			i++;
 		}
 	}
+	
 }

@@ -21,6 +21,7 @@ public class Buffer {
 	private int logSequenceNumber = -1; // negative means no corresponding log record
 	private int numRead=0;
 	private int numWrite=0;
+	private int assigned=0;
 	/**
 	 * Creates a new buffer, wrapping a new 
 	 * {@link simpledb.file.Page page}.  
@@ -202,5 +203,11 @@ public class Buffer {
 	}
 	public int getNumberOfWrites() {
 		return numWrite;
+	}
+	public boolean isAssigned(){
+		return assigned > 0;
+	}
+	public void setAssigned(){
+		assigned=1;
 	}
 }
